@@ -1,5 +1,9 @@
 using Redis
 using Base.Test
 
-println(Connection())
+conn = Connection()
+println(conn)
+
+connect(conn)
+println(conn)
 
