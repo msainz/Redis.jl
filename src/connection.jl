@@ -16,7 +16,7 @@ type Connection
   pid::Int32
   host::ASCIIString
   port::Integer
-  db::Uint8
+  db::Integer
   password::Union(Nothing,ASCIIString)
   sock::TcpSocket
   parser::RedisParser
@@ -47,7 +47,8 @@ function connect(conn::Connection)
     Base.connect(conn.sock, conn.host, conn.port)
   catch e
     println(e)
-    throw(ConnectionError())
+    msg = "Error connecting to Redis [ host:$(conn.host), port:$(conn.port) ]"
+    throw(ConnectionError(msg))
   end
   on_connect(conn)
 end
@@ -107,17 +108,20 @@ function send_packed_command(conn::Connection, cmd::Vector{Uint8})
   true
 end
 
+encode(value::Vector{Uint8}) = value
+encode(value) = string(value)
+
 function pack_command(args...)
   # Pack a sequence of args into a value Redis command
   o = IOBuffer()
   write(o, STR_STAR)
   write(o, string(length(args)) )
   write(o, STR_CRLF)
-  for arg in args
+  for enc_val in map(encode, args)
     write(o, STR_DOLLAR)
-    write(o, string(length(arg)) )
+    write(o, string(length(enc_val)) )
     write(o, STR_CRLF)
-    write(o, string(arg) )
+    write(o, enc_val )
     write(o, STR_CRLF)
   end
   o.data
