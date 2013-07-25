@@ -2,9 +2,10 @@ module Redis
 
   export RedisException,
          AuthenticationError,
-         ConnectionError
+         ConnectionError,
+         InvalidResponse
   export Connection
-  export connect, disconnect, send_command
+  export connect, disconnect, send_command, read_response
 
   include("exceptions.jl")
   include("connection.jl")
