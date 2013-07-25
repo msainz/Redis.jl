@@ -8,6 +8,8 @@ const STR_LF = "\n"
 type SimpleParser <: RedisParser
   # Simple redis parser implementation
   sock::TcpSocket
+  MAX_READ_LENGTH::Integer
+  SimpleParser(sock) = new(sock, 1048576) # 1MB
 end
 
 type Connection
@@ -46,16 +48,14 @@ function connect(conn::Connection)
   try
     Base.connect(conn.sock, conn.host, conn.port)
   catch e
-    println(e)
     msg = "Error connecting to Redis [ host:$(conn.host), port:$(conn.port) ]"
-    throw(ConnectionError(msg))
+    throw(ConnectionError("$msg, $e"))
   end
   on_connect(conn)
 end
 
 function on_connect(conn::Connection)
   # Initialize connection, authenticate and select a database
-  on_connect(conn.parser, conn)
 
   # if password given, authenticate
   if conn.password != nothing
@@ -68,10 +68,6 @@ function on_connect(conn::Connection)
   read_response(conn) == "OK" || throw(ConnectionError("Invalid database"))
 
   conn
-end
-
-function on_connect(parser::RedisParser, conn::Connection)
-  # Called when the socket connects
 end
 
 ## Disconnect methods ##
@@ -173,7 +169,7 @@ function read_response(parser::RedisParser)
     # If the requested value does not exist the bulk reply will use the special
     # value -1 as data length. This is called a NULL Bulk Reply
     len == -1 && return nothing
-    return read(parser, len)
+    return UTF8String( read(parser, len) )
   elseif byte == '*'
     # Multi Bulk reply:
     # used to return an array of other replies. Every element of a Multi Bulk
@@ -190,9 +186,31 @@ function read(parser::RedisParser)
   readuntil(parser.sock, STR_CRLF)[1:(end-2)]
 end
 
-function read(parser::RedisParser, len::Int)
+function read(parser::RedisParser, len::Integer)
   # Read `len` bytes from the socket, and strip trailing CRLF
-  # todo: implement efficiently
-  buf = readuntil(parser.sock, STR_CRLF)[1:(end-2)]
-  buf[1:len]
+  try
+    bytes_left = len + 2  # read the CRLF
+    if len > parser.MAX_READ_LENGTH
+        # apparently reading more than 1MB or so from a windows
+        # socket can cause MemoryErrors. See:
+        # https://github.com/andymccurdy/redis-py/issues/205
+        # read smaller chunks at a time to work around this
+        try
+          buf = IOBuffer()
+          while bytes_left > 0
+            read_len::Int = min(bytes_left, parser.MAX_READ_LENGTH)
+            write(buf, Base.read(parser.sock, Uint8, read_len))
+            bytes_left -= read_len
+          end
+          seek(buf,0)
+          return read(buf, Uint8, len)
+        finally
+          close(buf)
+        end
+    else
+      return Base.read(parser.sock, Uint8, bytes_left)[1:(end-2)]
+    end
+  catch e
+    throw(ConnectionError("Error while reading from socket: $e)"))
+  end
 end
