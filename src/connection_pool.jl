@@ -1,5 +1,7 @@
 type ConnectionPool
   # Generic connection pool
+  # It maintains a pool of reusable connections that can be shared by
+  # multiple redis clients (safely across threads)
   pid::Int32
   max_connections::Integer
   connection_args::Vector{Any}
@@ -27,7 +29,7 @@ function _checkpid(pool::ConnectionPool)
   pool.created_connections = 0
   pool.available_connections = Array(Connection,0)
   pool.in_use_connections = Set{Connection}()
-  return
+  nothing
 end
 
 function get_connection(pool::ConnectionPool)
@@ -45,6 +47,8 @@ end
 
 function make_connection(pool::ConnectionPool)
   # Make a new connection
+  # In the event that a client tries to get a connection from the pool
+  # when all of connections are in use, it throws a ConnectionError
   if pool.created_connections >= pool.max_connections
     throw(ConnectionError("Too many connections"))
   else
@@ -55,10 +59,21 @@ end
 
 function release(pool::ConnectionPool, conn::Connection)
   # Releases the connection back to the pool
-
+  _checkpid(pool)
+  if conn.pid == pool.pid
+    delete!(pool.in_use_connections, conn)
+    push!(pool.available_connections, conn)
+  end
+  nothing
 end
 
 function disconnect(pool::ConnectionPool)
   # Disconnects all connections in the pool
-
+  for conn in pool.in_use_connections
+    disconnect(conn)
+  end
+  for conn in pool.available_connections
+    disconnect(conn)
+  end
+  nothing
 end

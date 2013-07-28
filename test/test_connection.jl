@@ -1,6 +1,3 @@
-using Redis
-using Base.Test
-
 c = Connection()
 connect(c)
 
