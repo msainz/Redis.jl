@@ -29,7 +29,7 @@ end
 @test pool.available_connections == [c1]
 @test pool.in_use_connections == Set(c2)
 
-@test_fails release(pool, c1)
+@test_throws release(pool, c1)
 @test pool.available_connections == [c1]
 @test pool.in_use_connections == Set(c2)
 

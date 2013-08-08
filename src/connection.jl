@@ -1,4 +1,11 @@
 abstract RedisParser
+import Base.connect
+import Base.StatusInit,
+       Base.StatusConnecting, # todo: use me!
+       Base.StatusOpen,
+       Base.StatusActive,
+       Base.StatusClosing,    # todo: use me!
+       Base.StatusClosed
 
 const STR_STAR = "*"
 const STR_DOLLAR = "\$"
@@ -21,7 +28,7 @@ type Connection
   password::Union(Nothing,ASCIIString)
   sock::TcpSocket
   parser::RedisParser
-  
+
   function Connection(; host="localhost", port=6379, db=0, password=nothing,
                         parser_type=SimpleParser)
     sock = TcpSocket()
@@ -40,13 +47,21 @@ type Connection
 
 end # type Connection
 
+#
+# TODO: wait for timeout seconds if StatusConnecting or StatusClosing
+#
+
+function open_or_active(sock::TcpSocket)
+  sock.status == StatusOpen || sock.status == StatusActive
+end
+
 ## Connect methods ##
 
 function connect(conn::Connection)
   # Connects to Redis server if not already connected
-  conn.sock.open && return conn
+  open_or_active(conn.sock) && return conn
   try
-    Base.connect(conn.sock, conn.host, conn.port)
+    connect(conn.sock, conn.host, conn.port)
   catch e
     msg = "Error connecting to Redis [ host:$(conn.host), port:$(conn.port) ]"
     throw(ConnectionError("$msg, $e"))
@@ -75,7 +90,7 @@ end
 function disconnect(conn::Connection)
   # Disconnects from Redis server
   on_disconnect(conn.parser)
-  conn.sock.open || return conn
+  (conn.sock.status == StatusClosed) && return conn
   try
     close(conn.sock)
   catch
@@ -96,9 +111,10 @@ end
 
 function send_packed_command(conn::Connection, cmd::Vector{Uint8})
   # Send a packed command to Redis
-  if !conn.sock.open
+  if conn.sock.status == StatusInit
     connect(conn)
   end
+  @assert open_or_active(conn.sock)
   try
     write(conn.sock, cmd)
     return
