@@ -5,9 +5,13 @@ module Redis
          ConnectionError,
          InvalidResponse
 
-  export RedisCli, RedisParser, SimpleParser, Connection, ConnectionPool
+  export RedisParser, SimpleParser, Connection, ConnectionPool
   export connect, disconnect, send_command, read_response
   export get_connection, release, disconnect
+  export redis
+
+  # TODO: remove these -- temporary only
+  export execute_command
 
   include("exceptions.jl")
   include("connection.jl")

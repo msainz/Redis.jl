@@ -62,9 +62,9 @@ function connect(conn::Connection)
   open_or_active(conn.sock) && return conn
   try
     connect(conn.sock, conn.host, conn.port)
-  catch e
+  catch err
     msg = "Error connecting to Redis [ host:$(conn.host), port:$(conn.port) ]"
-    throw(ConnectionError("$msg, $e"))
+    throw(ConnectionError("$msg, $err"))
   end
   on_connect(conn)
 end
@@ -114,13 +114,14 @@ function send_packed_command(conn::Connection, cmd::Vector{Uint8})
   if conn.sock.status == StatusInit
     connect(conn)
   end
+  @show conn.sock
   @assert open_or_active(conn.sock)
   try
     write(conn.sock, cmd)
     return
-  catch e
+  catch err
     disconnect(conn)
-    rethrow(e)
+    rethrow(err)
   end
 end
 
@@ -152,9 +153,9 @@ function read_response(conn::Connection)
     response = read_response(conn.parser)
     isa(response, ResponseError) && throw(response)
     return response
-  catch e
+  catch err
     disconnect(conn)
-    rethrow(e)
+    rethrow(err)
   end
 end
 
@@ -226,7 +227,7 @@ function read(parser::RedisParser, len::Integer)
     else
       return Base.read(parser.sock, Uint8, bytes_left)[1:(end-2)]
     end
-  catch e
-    throw(ConnectionError("Error while reading from socket: $e)"))
+  catch err
+    throw(ConnectionError("Error while reading from socket: $err)"))
   end
 end
