@@ -1,5 +1,7 @@
+using Redis
+using Base.Test
+
 c = Connection()
-connect(c)
 
 send_command(c, "FLUSHDB")
 @test read_response(c) == "OK"
@@ -19,3 +21,5 @@ end
 send_command(c, "LRANGE", "bar", 0, -1)
 @test read_response(c) == {"1", "a", "2", "b"}
 
+disconnect(c)
+@test Base.StatusClosed == c.sock.status

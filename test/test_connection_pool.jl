@@ -1,3 +1,6 @@
+using Redis
+using Base.Test
+
 pool = ConnectionPool(max_connections=2, db=1)
 @test pool.created_connections == 0
 @test isempty(pool.available_connections)

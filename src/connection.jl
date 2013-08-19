@@ -48,7 +48,7 @@ type Connection
 end # type Connection
 
 #
-# TODO: wait for timeout seconds if StatusConnecting or StatusClosing
+# TODO: wait for timeout seconds when trasitioning (StatusConnecting or StatusClosing)
 #
 
 function open_or_active(sock::TcpSocket)
@@ -81,7 +81,6 @@ function on_connect(conn::Connection)
   # switch to given database
   send_command(conn, "SELECT", conn.db)
   read_response(conn) == "OK" || throw(ConnectionError("Invalid database"))
-
   conn
 end
 
@@ -93,6 +92,7 @@ function disconnect(conn::Connection)
   (conn.sock.status == StatusClosed) && return conn
   try
     close(conn.sock)
+    sleep(.1) # TODO: necessary? better way?
   catch
   end
   conn
@@ -114,7 +114,6 @@ function send_packed_command(conn::Connection, cmd::Vector{Uint8})
   if conn.sock.status == StatusInit
     connect(conn)
   end
-  @show conn.sock
   @assert open_or_active(conn.sock)
   try
     write(conn.sock, cmd)

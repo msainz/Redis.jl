@@ -1,7 +1,6 @@
 type ConnectionPool
-  # Generic connection pool
   # It maintains a pool of reusable connections that can be shared by
-  # multiple redis clients (safely across threads)
+  # multiple redis clients (TODO: safely across threads)
   pid::Int32
   max_connections::Integer
   connection_args::Vector{Any}
