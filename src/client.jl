@@ -1,3 +1,25 @@
+
+function string_keys_to_dict(keys::ASCIIString, callback::Function)
+  keys_arr = convert(Array{ASCIIString}, split(keys)) # split returns Array{String}
+  vals_arr = repeat([callback]; inner = [length(keys_arr)])
+  Dict(keys_arr, vals_arr)
+end
+
+const RESPONSE_CALLBACKS = merge(
+  string_keys_to_dict(
+    "AUTH EXISTS EXPIRE EXPIREAT HEXISTS HMSET MOVE MSETNX PERSIST " *
+    "PSETEX RENAMENX SISMEMBER SMOVE SETEX SETNX",
+    bool
+  ),
+  string_keys_to_dict(
+    "BITCOUNT DECRBY DEL GETBIT HDEL HLEN INCRBY LINSERT LLEN LPUSHX " *
+    "RPUSHX SADD SCARD SDIFFSTORE SETBIT SETRANGE SINTERSTORE SREM " *
+    "STRLEN SUNIONSTORE ZADD ZCARD ZREM ZREMRANGEBYRANK " *
+    "ZREMRANGEBYSCORE",
+    int
+  )
+)
+
 type RedisClient
   # Implementation of the Redis protocol
   # http://redis.io/topics/protocol
@@ -8,7 +30,7 @@ type RedisClient
   # Connection and Pipeline implement how the commands are sent
   # and received to and from the Redis server
   connection_pool::ConnectionPool
-  response_callbacks::Dict
+  response_callbacks::Dict{ASCIIString, Function}
 end # type RedisClient
 
 function redis(; host="localhost", port=6379, db=0, password=nothing,
@@ -23,8 +45,7 @@ function redis(; host="localhost", port=6379, db=0, password=nothing,
     ]
     connection_pool = ConnectionPool(; kvargs...)
   end
-  # self.response_callbacks = self.__class__.RESPONSE_CALLBACKS.copy()
-  RedisClient(connection_pool, Dict())
+  RedisClient(connection_pool, RESPONSE_CALLBACKS) # TODO: (deep)copy RESP_CALLBKS?
 end
 
 ## Command execution and protocol parsing ##
@@ -53,7 +74,8 @@ function parse_response(client::RedisClient, conn::Connection,
                         command_name::ASCIIString; options...)
   # Parses a response from the Redis server
   response = read_response(conn)
-  # if command_name in self.response_callbacks:
-      # return self.response_callbacks[command_name](response, **options)
-  # return response
+  if contains(keys(client.response_callbacks), command_name)
+    return client.response_callbacks[command_name](response, options...)
+  end
+  response
 end
