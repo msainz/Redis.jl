@@ -40,7 +40,7 @@ function get_connection(pool::ConnectionPool)
     else
       make_connection(pool)
     end
-  add!(pool.in_use_connections, conn)
+  push!(pool.in_use_connections, conn)
   conn
 end
 
@@ -59,7 +59,7 @@ end
 function release(pool::ConnectionPool, conn::Connection)
   # Releases the connection back to the pool
   _checkpid(pool)
-  if conn.pid == pool.pid
+  if conn.pid == pool.pid && contains(pool.in_use_connections, conn)
     delete!(pool.in_use_connections, conn)
     push!(pool.available_connections, conn)
   end
