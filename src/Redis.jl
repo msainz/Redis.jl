@@ -10,6 +10,9 @@ module Redis
   export get_connection, release, disconnect
   export redis
 
+  ### SERVER INFORMATION COMMANDS ###
+  export bgrewriteaof #, bgsave
+
   # TODO: remove these -- temporary only
   export execute_command
 
