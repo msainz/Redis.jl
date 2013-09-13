@@ -1,5 +1,6 @@
 abstract RedisParser
 import Base.connect
+import Base.TcpSocket
 import Base.StatusInit,
        Base.StatusConnecting, # todo: use me!
        Base.StatusOpen,
@@ -161,7 +162,7 @@ end
 function read_response(parser::RedisParser)
   bytes::Vector{Uint8} = read(parser)
   byte::Uint8, response::UTF8String = bytes[1], UTF8String(bytes[2:])
-  contains( ('-', '+', ':', '$', '*'), byte) || throw(InvalidResponse("Protocol error"))
+  in(char(byte), "- + : \$ *") || throw(InvalidResponse("Protocol error"))
   if byte == '-'
     # Error reply:
     # the first word after the "-" up to the first space or newline

@@ -74,7 +74,7 @@ function parse_response(client::RedisClient, conn::Connection,
                         command_name::ASCIIString; options...)
   # Parses a response from the Redis server
   response = read_response(conn)
-  if contains(keys(client.response_callbacks), command_name)
+  if in(command_name, keys(client.response_callbacks))
     return client.response_callbacks[command_name](response, options...)
   end
   response

@@ -59,7 +59,7 @@ end
 function release(pool::ConnectionPool, conn::Connection)
   # Releases the connection back to the pool
   _checkpid(pool)
-  if conn.pid == pool.pid && contains(pool.in_use_connections, conn)
+  if conn.pid == pool.pid && in(conn, pool.in_use_connections)
     delete!(pool.in_use_connections, conn)
     push!(pool.available_connections, conn)
   end

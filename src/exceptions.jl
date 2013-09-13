@@ -23,6 +23,7 @@ end
 
 
 type InvalidResponse <: RedisError # <: ServerError
+  message::ASCIIString
 end
 
 
