@@ -11,7 +11,8 @@ module Redis
   export redis
 
   ### SERVER INFORMATION COMMANDS ###
-  export bgrewriteaof #, bgsave
+  export bgrewriteaof, bgsave, dbsize, echo, flushall, flushdb,
+         info
 
   # TODO: remove these -- temporary only
   export execute_command

@@ -167,7 +167,8 @@ function read_response(parser::RedisParser)
     # Error reply:
     # the first word after the "-" up to the first space or newline
     # represents the kind of error returned
-    error("todo: implement me!")
+    @show response
+    error("TODO: implement me!")
   elseif byte == '+'
     # Status reply:
     # not binary safe and can't include newlines
