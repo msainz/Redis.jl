@@ -59,7 +59,9 @@ const RESPONSE_CALLBACKS = merge(
   {
     "BGREWRITEAOF" => (r) -> ismatch(r"rewriting started", r),
     "BGSAVE" => (r) -> ismatch(r"saving started", r),
-    "INFO" => parse_info
+    "INFO" => parse_info,
+    "PING" => (r) -> ismatch(r"PONG", r),
+    "TIME" => (r) -> ( int(r[1]), int(r[2]) )
   }
 )
 
@@ -206,7 +208,7 @@ function info(client::RedisClient, section=nothing)
 end
 
 # function lastsave(client::RedisClient)
-  # # Return a Python datetime object representing the last time the
+  # # Return a julia datetime object representing the last time the
   # # Redis database was saved to disk
   # execute_command('LASTSAVE')
 # end
@@ -216,16 +218,16 @@ end
   # execute_command('OBJECT', infotype, key, infotype=infotype)
 # end
 
-# function ping(client::RedisClient)
-  # # Ping the Redis server
-  # execute_command('PING')
-# end
+function ping(client::RedisClient)
+  # Ping the Redis server
+  execute_command(client, "PING")
+end
 
-# function save(client::RedisClient)
-  # # Tell the Redis server to save its data to disk,
-  # # blocking until the save is complete
-  # execute_command('SAVE')
-# end
+function save(client::RedisClient)
+  # Tell the Redis server to save its data to disk,
+  # blocking until the save is complete
+  execute_command(client, "SAVE")
+end
 
 # function sentinel(client::RedisClient, *args)
   # # Redis Sentinel's SENTINEL command
@@ -255,9 +257,82 @@ end
   # execute_command("SLAVEOF", host, port)
 # end
 
-# function time(client::RedisClient)
-  # # Returns the server time as a 2-item tuple of ints:
-  # # (seconds since epoch, microseconds into this second).
-  # execute_command('TIME')
+function time(client::RedisClient)
+  # Returns the server time as a 2-item tuple of ints:
+  # (seconds since epoch, microseconds into this second).
+  execute_command(client, "TIME")
+end
+
+#### BASIC KEY COMMANDS ####
+function append(client::RedisClient, key::String, value::String)
+  # Appends the string ``value`` to the value at ``key``. If ``key``
+  # doesn't already exist, create it with a value of ``value``.
+  # Returns the new length of the value at ``key``.
+  execute_command(client, "APPEND", key, value)
+end
+
+# function bitcount(key, start=None, end=None):
+    # # Returns the count of set bits in the value of ``key``.  Optional
+    # # ``start`` and ``end`` paramaters indicate which bytes to consider
+    # params = [key]
+    # if start is not None and end is not None:
+        # params.append(start)
+        # params.append(end)
+    # elif (start is not None and end is None) or \
+            # (end is not None and start is None):
+        # raise RedisError("Both start and end must be specified")
+    # execute_command('BITCOUNT', *params)
 # end
+
+# function bitop(operation, dest, *keys):
+    # # Perform a bitwise operation using ``operation`` between ``keys`` and
+    # # store the result in ``dest``.
+    # execute_command('BITOP', operation, dest, *keys)
+# end
+
+# function decr(name, amount=1):
+    # # Decrements the value of ``key`` by ``amount``.  If no key exists,
+    # # the value will be initialized as 0 - ``amount``
+    # execute_command('DECRBY', name, amount)
+# end
+
+# function delete(*names):
+    # # Delete one or more keys specified by ``names``
+    # execute_command('DEL', *names)
+# __delitem__ = delete
+# end
+
+# function dump(name):
+    # # Return a serialized version of the value stored at the specified key.
+    # # If key does not exist a nil bulk reply is returned.
+    # execute_command('DUMP', name)
+# end
+
+# function exists(name):
+    # # Returns a boolean indicating whether key ``name`` exists
+    # execute_command('EXISTS', name)
+# __contains__ = exists
+# end
+
+# function expire(name, time):
+    # # Set an expire flag on key ``name`` for ``time`` seconds. ``time``
+    # # can be represented by an integer or a Python timedelta object.
+    # if isinstance(time, datetime.timedelta):
+        # time = time.seconds + time.days * 24 * 3600
+    # execute_command('EXPIRE', name, time)
+# end
+
+# function expireat(name, when):
+    # # Set an expire flag on key ``name``. ``when`` can be represented
+    # # as an integer indicating unix time or a Python datetime object.
+    # if isinstance(when, datetime.datetime):
+        # when = int(mod_time.mktime(when.timetuple()))
+    # execute_command('EXPIREAT', name, when)
+# end
+
+function get(client::RedisClient, name::String)
+    # Return the value at key ``name``, or None if the key doesn't exist
+    execute_command(client, "GET", name)
+end
+
 

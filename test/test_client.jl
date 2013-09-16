@@ -3,7 +3,7 @@ using Base.Test
 
 client = redis()
 
-@test execute_command(client, "GET", "foo") == "4.53"
+@test get(client, "foo") == "4.53"
 
 @test bgsave(client) == true
 
@@ -18,5 +18,13 @@ client = redis()
 @show info(client)
 @show info(client, "clients")
 
+@test ping(client) == true
+
+@test save(client) == true
+
 @test bgrewriteaof(client) == true
 
+@show time(client)
+
+@test append(client, "foo", "123") == length("123")
+@test append(client, "foo", "+45") == length("123+45")

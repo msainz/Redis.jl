@@ -12,10 +12,10 @@ module Redis
 
   ### SERVER INFORMATION COMMANDS ###
   export bgrewriteaof, bgsave, dbsize, echo, flushall, flushdb,
-         info
+         info, ping, save, time
 
-  # TODO: remove these -- temporary only
-  export execute_command
+  #### BASIC KEY COMMANDS ####
+  export append, get
 
   include("exceptions.jl")
   include("connection.jl")
