@@ -21,5 +21,8 @@ end
 send_command(c, "LRANGE", "bar", 0, -1)
 @test read_response(c) == {"1", "a", "2", "b"}
 
+send_command(c, "FLUSHDB")
+@test read_response(c) == "OK"
+
 disconnect(c)
 @test Base.StatusClosed == c.sock.status

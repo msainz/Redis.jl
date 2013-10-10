@@ -61,6 +61,7 @@ const RESPONSE_CALLBACKS = merge(
     "BGSAVE" => (r) -> ismatch(r"saving started", r),
     "INFO" => parse_info,
     "PING" => (r) -> ismatch(r"PONG", r),
+    "SET" => (r) -> (nothing != r) && ismatch(r"OK", r),
     "TIME" => (r) -> ( int(r[1]), int(r[2]) )
   }
 )
@@ -137,50 +138,10 @@ function bgsave(client::RedisClient)
   execute_command(client, "BGSAVE")
 end
 
-# function client_kill(client::RedisClient, address)
-  # # Disconnects the client at ``address`` (ip:port)
-  # execute_command('CLIENT', 'KILL', address, parse='KILL')
-# end
-
-# function client_list(client::RedisClient)
-  # # Returns a list of currently connected clients
-  # execute_command('CLIENT', 'LIST', parse='LIST')
-# end
-
-# function client_getname(client::RedisClient)
-  # # Returns the current connection name
-  # execute_command('CLIENT', 'GETNAME', parse='GETNAME')
-# end
-
-# function client_setname(client::RedisClient, name)
-  # # Sets the current connection name
-  # execute_command('CLIENT', 'SETNAME', name, parse='SETNAME')
-# end
-
-# function config_get(client::RedisClient, pattern="*")
-  # # Return a dictionary of configuration based on the ``pattern``
-  # execute_command('CONFIG', 'GET', pattern, parse='GET')
-# end
-
-# function config_set(client::RedisClient, name, value)
-  # # Set config item ``name`` with ``value``
-  # execute_command('CONFIG', 'SET', name, value, parse='SET')
-# end
-
-# function config_resetstat(client::RedisClient)
-  # # Reset runtime statistics
-  # execute_command('CONFIG', 'RESETSTAT', parse='RESETSTAT')
-# end
-
 function dbsize(client::RedisClient)
   # Returns the number of keys in the current database
   execute_command(client, "DBSIZE")
 end
-
-# function debug_object(client::RedisClient, key)
-  # # Returns version specific metainformation about a given key
-  # execute_command('DEBUG', 'OBJECT', key)
-# end
 
 function echo(client::RedisClient, value)
   # Echo the string back from the server
@@ -207,17 +168,6 @@ function info(client::RedisClient, section=nothing)
   execute_command(client, "INFO", section)
 end
 
-# function lastsave(client::RedisClient)
-  # # Return a julia datetime object representing the last time the
-  # # Redis database was saved to disk
-  # execute_command('LASTSAVE')
-# end
-
-# function object(client::RedisClient, infotype, key)
-  # # Return the encoding, idletime, or refcount about the key
-  # execute_command('OBJECT', infotype, key, infotype=infotype)
-# end
-
 function ping(client::RedisClient)
   # Ping the Redis server
   execute_command(client, "PING")
@@ -228,34 +178,6 @@ function save(client::RedisClient)
   # blocking until the save is complete
   execute_command(client, "SAVE")
 end
-
-# function sentinel(client::RedisClient, *args)
-  # # Redis Sentinel's SENTINEL command
-  # if args[0] in ['masters', 'slaves', 'sentinels']:
-      # parse = 'SENTINEL_INFO'
-  # else:
-      # parse = 'SENTINEL'
-  # execute_command('SENTINEL', *args, **{'parse': parse})
-# end
-
-# function shutdown(client::RedisClient)
-  # # Shutdown the server
-  # try:
-      # self.execute_command('SHUTDOWN')
-  # except ConnectionError:
-      # # a ConnectionError here is expected
-      # return
-  # raise RedisError("SHUTDOWN seems to have failed.")
-# end
-
-# function slaveof(client::RedisClient, host=None, port=None)
-  # # Set the server to be a replicated slave of the instance identified
-  # # by the ``host`` and ``port``. If called without arguements, the
-  # # instance is promoted to a master instead.
-  # if host is None and port is None:
-      # execute_command("SLAVEOF", "NO", "ONE")
-  # execute_command("SLAVEOF", host, port)
-# end
 
 function time(client::RedisClient)
   # Returns the server time as a 2-item tuple of ints:
@@ -271,24 +193,11 @@ function append(client::RedisClient, key::String, value::String)
   execute_command(client, "APPEND", key, value)
 end
 
-# function bitcount(key, start=None, end=None):
-    # # Returns the count of set bits in the value of ``key``.  Optional
-    # # ``start`` and ``end`` paramaters indicate which bytes to consider
-    # params = [key]
-    # if start is not None and end is not None:
-        # params.append(start)
-        # params.append(end)
-    # elif (start is not None and end is None) or \
-            # (end is not None and start is None):
-        # raise RedisError("Both start and end must be specified")
-    # execute_command('BITCOUNT', *params)
-# end
+# function keys
 
-# function bitop(operation, dest, *keys):
-    # # Perform a bitwise operation using ``operation`` between ``keys`` and
-    # # store the result in ``dest``.
-    # execute_command('BITOP', operation, dest, *keys)
-# end
+# function rename
+
+# function incr
 
 # function decr(name, amount=1):
     # # Decrements the value of ``key`` by ``amount``.  If no key exists,
@@ -314,25 +223,27 @@ end
 # __contains__ = exists
 # end
 
-# function expire(name, time):
-    # # Set an expire flag on key ``name`` for ``time`` seconds. ``time``
-    # # can be represented by an integer or a Python timedelta object.
-    # if isinstance(time, datetime.timedelta):
-        # time = time.seconds + time.days * 24 * 3600
-    # execute_command('EXPIRE', name, time)
-# end
-
-# function expireat(name, when):
-    # # Set an expire flag on key ``name``. ``when`` can be represented
-    # # as an integer indicating unix time or a Python datetime object.
-    # if isinstance(when, datetime.datetime):
-        # when = int(mod_time.mktime(when.timetuple()))
-    # execute_command('EXPIREAT', name, when)
-# end
-
 function get(client::RedisClient, name::String)
-    # Return the value at key ``name``, or None if the key doesn't exist
-    execute_command(client, "GET", name)
+  # Return the value at key ``name``, or None if the key doesn't exist
+  execute_command(client, "GET", name)
 end
 
-
+function set(client::RedisClient, name::String, value; ex=nothing, px=nothing, nx::Bool=false, xx::Bool=false)
+  # Set the value at key ``name`` to ``value``
+  # ``ex`` sets an expire flag on key ``name`` for ``ex`` seconds.
+  # ``px`` sets an expire flag on key ``name`` for ``px`` milliseconds.
+  # ``nx`` if set to True, set value at key ``name`` to ``value`` if not already exists.
+  # ``xx`` if set to True, set value at key ``name`` to ``value`` if already exists.
+  pieces = [name, value]
+  if nothing != ex
+    push!(pieces, "EX")
+    push!(pieces, ex)
+  end
+  if nothing != px
+    push!(pieces, "PX")
+    push!(pieces, px)
+  end
+  nx && push!(pieces, "NX")
+  xx && push!(pieces, "XX")
+  execute_command(client, "SET", pieces...)
+end

@@ -43,3 +43,4 @@ end
 c2 = get_connection(pool)
 @test pool.available_connections == [c1]
 @test pool.in_use_connections == Set(c2)
+

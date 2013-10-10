@@ -3,13 +3,18 @@ using Base.Test
 
 client = redis()
 
+@test flushall(client) == true
+
+@test set(client, "foo", 4; xx=true) == false
+@test set(client, "foo", 4) == true
+@test set(client, "foo", "bananas"; nx=true) == false
+@test set(client, "foo", 4.53; xx=true) == true
+
 @test get(client, "foo") == "4.53"
 
 @test bgsave(client) == true
 
 @test echo(client, "foo") == "foo"
-
-@test flushall(client) == true
 
 @test flushdb(client) == true
 
@@ -28,3 +33,5 @@ client = redis()
 
 @test append(client, "foo", "123") == length("123")
 @test append(client, "foo", "+45") == length("123+45")
+
+@test flushall(client) == true
