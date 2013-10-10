@@ -217,11 +217,10 @@ end
     # execute_command('DUMP', name)
 # end
 
-# function exists(name):
-    # # Returns a boolean indicating whether key ``name`` exists
-    # execute_command('EXISTS', name)
-# __contains__ = exists
-# end
+function exists(client::RedisClient, name::String)
+  # Returns a boolean indicating whether key ``name`` exists
+  execute_command(client, "EXISTS", name)
+end
 
 function get(client::RedisClient, name::String)
   # Return the value at key ``name``, or None if the key doesn't exist

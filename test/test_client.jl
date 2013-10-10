@@ -5,11 +5,15 @@ client = redis()
 
 @test flushall(client) == true
 
+@test exists(client, "foo") == false
+
 @test set(client, "foo", 4; xx=true) == false
 @test set(client, "foo", 4) == true
 @test set(client, "foo", "bananas"; nx=true) == false
 @test set(client, "foo", 4.53; xx=true) == true
 @test get(client, "foo") == "4.53"
+
+@test exists(client, "foo") == true
 
 # key expiration via px (in milliseconds)
 @test set(client, "foo", 4; px=500) == true
