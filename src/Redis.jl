@@ -15,7 +15,7 @@ module Redis
          info, ping, save, time
 
   #### BASIC KEY COMMANDS ####
-  export append, exists, get, set
+  export append, exists, dump, restore, get, set
 
   include("exceptions.jl")
   include("connection.jl")

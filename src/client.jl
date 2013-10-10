@@ -53,7 +53,7 @@ const RESPONSE_CALLBACKS = merge(
   ),
   string_keys_to_dict(
     "FLUSHALL FLUSHDB LSET LTRIM MSET RENAME " *
-    "SAVE SELECT SHUTDOWN SLAVEOF WATCH UNWATCH",
+    "SAVE SELECT SHUTDOWN SLAVEOF WATCH UNWATCH RESTORE",
     (r) -> ismatch(r"OK", r)
   ),
   {
@@ -62,6 +62,7 @@ const RESPONSE_CALLBACKS = merge(
     "INFO" => parse_info,
     "PING" => (r) -> ismatch(r"PONG", r),
     "SET" => (r) -> (nothing != r) && ismatch(r"OK", r),
+    "DUMP" => (r) -> (nothing == r) ? nothing : convert(Vector{Uint8}, r),
     "TIME" => (r) -> ( int(r[1]), int(r[2]) )
   }
 )
@@ -211,11 +212,19 @@ end
 # __delitem__ = delete
 # end
 
-# function dump(name):
-    # # Return a serialized version of the value stored at the specified key.
-    # # If key does not exist a nil bulk reply is returned.
-    # execute_command('DUMP', name)
-# end
+restore(client::RedisClient, name::String, value::Vector{Uint8}) = restore(client, name, 0, value)
+function restore(client::RedisClient, name::String, ttl::Int, value::Vector{Uint8})
+  # Create a key using the provided serialized value, previously obtained using DUMP.
+  # If ``ttl`` is 0, the key is created without any expire, otherwise the specified expire
+  # time (in milliseconds) is set.
+  execute_command(client, "RESTORE", name, ttl, value)
+end
+
+function dump(client::RedisClient, name::String)
+  # Return a serialized version of the value stored at the specified key.
+  # If key does not exist a ``nothing`` bulk reply is returned.
+  execute_command(client, "DUMP", name)
+end
 
 function exists(client::RedisClient, name::String)
   # Returns a boolean indicating whether key ``name`` exists
@@ -223,7 +232,7 @@ function exists(client::RedisClient, name::String)
 end
 
 function get(client::RedisClient, name::String)
-  # Return the value at key ``name``, or None if the key doesn't exist
+  # Return the value at key ``name``, or ``nothing`` if the key doesn't exist
   execute_command(client, "GET", name)
 end
 

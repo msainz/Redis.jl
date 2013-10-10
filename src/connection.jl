@@ -161,7 +161,8 @@ end
 
 function read_response(parser::RedisParser)
   bytes::Vector{Uint8} = read(parser)
-  byte::Uint8, response::UTF8String = bytes[1], UTF8String(bytes[2:])
+  byte::Uint8 = bytes[1]
+  response::UTF8String = UTF8String(bytes[2:])
   in(char(byte), "- + : \$ *") || throw(InvalidResponse("Protocol error"))
   if byte == '-'
     # Error reply:

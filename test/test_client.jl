@@ -6,14 +6,23 @@ client = redis()
 @test flushall(client) == true
 
 @test exists(client, "foo") == false
+@test dump(client, "foo") == nothing
 
 @test set(client, "foo", 4; xx=true) == false
 @test set(client, "foo", 4) == true
 @test set(client, "foo", "bananas"; nx=true) == false
 @test set(client, "foo", 4.53; xx=true) == true
 @test get(client, "foo") == "4.53"
-
 @test exists(client, "foo") == true
+
+# dump and restore
+@test exists(client, "goo") == false
+@test restore(client, "goo", 100, dump(client, "foo")) == true
+@test get(client, "goo") == "4.53"
+sleep(0.150)
+@test exists(client, "goo") == false
+@test restore(client, "goo", 0, dump(client, "foo")) == true
+@test get(client, "goo") == "4.53"
 
 # key expiration via px (in milliseconds)
 @test set(client, "foo", 4; px=500) == true
