@@ -187,7 +187,7 @@ function time(client::RedisClient)
 end
 
 #### BASIC KEY COMMANDS ####
-function append(client::RedisClient, key::String, value::String)
+function append(client::RedisClient, key::String, value)
   # Appends the string ``value`` to the value at ``key``. If ``key``
   # doesn't already exist, create it with a value of ``value``.
   # Returns the new length of the value at ``key``.

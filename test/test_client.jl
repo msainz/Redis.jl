@@ -59,7 +59,7 @@ dict = info(client, "clients")
 
 @test typeof( time(client) ) == (Int, Int)
 
-@test append(client, "foo", "123") == length("123")
+@test append(client, "foo", 123) == length("123")
 @test append(client, "foo", "+45") == length("123+45")
 
 @test flushall(client) == true
