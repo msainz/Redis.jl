@@ -1,5 +1,6 @@
 using Redis
 using Base.Test
+include("test_guard.jl")
 
 c = Connection()
 
