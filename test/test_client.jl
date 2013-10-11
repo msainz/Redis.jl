@@ -32,17 +32,21 @@ sleep(0.150)
 @test keys(client, "f*") == {"foo"}
 @test keys(client, "boo") == {}
 
+# del
+@test del(client, "foo", "goo") == 2
+@test del(client, "nonexistent") == 0
+
 # incr
-@test exists(client, "moo") == false
-@test incr(client, "moo") == 1
-@test incr(client, "moo") == 2
-@test incr(client, "moo", 2) == 4
+@test exists(client, "foo") == false
+@test incr(client, "foo") == 1
+@test incr(client, "foo") == 2
+@test incr(client, "foo", 2) == 4
 
 # decr
-@test exists(client, "noo") == false
-@test decr(client, "noo") == -1
-@test decr(client, "noo") == -2
-@test decr(client, "noo", 2) == -4
+@test exists(client, "goo") == false
+@test decr(client, "goo") == -1
+@test decr(client, "goo") == -2
+@test decr(client, "goo", 2) == -4
 
 # key expiration via px (in milliseconds)
 @test set(client, "foo", 4; px=500) == true

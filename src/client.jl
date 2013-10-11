@@ -212,11 +212,10 @@ function decr(client::RedisClient, name::String, amount::Int=1)
   execute_command(client, "DECRBY", name, amount)
 end
 
-# function delete(*names):
-    # # Delete one or more keys specified by ``names``
-    # execute_command('DEL', *names)
-# __delitem__ = delete
-# end
+function del(client::RedisClient, names...)
+  # Delete one or more keys specified by ``names``
+  execute_command(client, "DEL", names...)
+end
 
 restore(client::RedisClient, name::String, value::Vector{Uint8}) = restore(client, name, 0, value)
 function restore(client::RedisClient, name::String, ttl::Int, value::Vector{Uint8})
