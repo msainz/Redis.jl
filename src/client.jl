@@ -194,11 +194,18 @@ function append(client::RedisClient, key::String, value)
   execute_command(client, "APPEND", key, value)
 end
 
-# function keys
+import Base.keys
+function keys(client::RedisClient, pattern="*")
+  # Returns a list of keys matching ``pattern``
+  execute_command(client, "KEYS", pattern)
+end
 
-# function rename
-
-# function incr
+    # def incr(self, name, amount=1):
+        # """
+        # Increments the value of ``key`` by ``amount``.  If no key exists,
+        # the value will be initialized as ``amount``
+        # """
+        # return self.execute_command('INCRBY', name, amount)
 
 # function decr(name, amount=1):
     # # Decrements the value of ``key`` by ``amount``.  If no key exists,

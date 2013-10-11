@@ -5,6 +5,7 @@ include("test_guard.jl")
 client = redis()
 
 @test flushall(client) == true
+@test keys(client) == {}
 
 @test exists(client, "foo") == false
 @test dump(client, "foo") == nothing
@@ -24,6 +25,11 @@ sleep(0.150)
 @test exists(client, "goo") == false
 @test restore(client, "goo", 0, dump(client, "foo")) == true
 @test get(client, "goo") == "4.53"
+
+# keys
+@test sort(keys(client)) == {"foo","goo"}
+@test keys(client, "f*") == {"foo"}
+@test keys(client, "boo") == {}
 
 # key expiration via px (in milliseconds)
 @test set(client, "foo", 4; px=500) == true
