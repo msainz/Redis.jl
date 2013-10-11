@@ -1,9 +1,8 @@
-Redis.jl
-========
+#Redis.jl
 
-Pure Julia implementation of a Redis client, largely based on [redis-py](https://github.com/andymccurdy/redis-py).
+Pure Julia implementation of a [Redis](http://redis.io) client, largely based on [redis-py](https://github.com/andymccurdy/redis-py).
 
-# Usage
+## Usage
 
     using Redis
     client = redis(host="localhost", port=6379, db=0)
