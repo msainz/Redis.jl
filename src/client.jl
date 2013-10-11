@@ -200,18 +200,17 @@ function keys(client::RedisClient, pattern="*")
   execute_command(client, "KEYS", pattern)
 end
 
-    # def incr(self, name, amount=1):
-        # """
-        # Increments the value of ``key`` by ``amount``.  If no key exists,
-        # the value will be initialized as ``amount``
-        # """
-        # return self.execute_command('INCRBY', name, amount)
+function incr(client::RedisClient, name::String, amount::Int=1)
+  # Increments the value of ``key`` by ``amount``.  If no key exists,
+  # the value will be initialized as ``amount``
+  execute_command(client, "INCRBY", name, amount)
+end
 
-# function decr(name, amount=1):
-    # # Decrements the value of ``key`` by ``amount``.  If no key exists,
-    # # the value will be initialized as 0 - ``amount``
-    # execute_command('DECRBY', name, amount)
-# end
+function decr(client::RedisClient, name::String, amount::Int=1)
+  # Decrements the value of ``key`` by ``amount``.  If no key exists,
+  # the value will be initialized as 0 - ``amount``
+  execute_command(client, "DECRBY", name, amount)
+end
 
 # function delete(*names):
     # # Delete one or more keys specified by ``names``

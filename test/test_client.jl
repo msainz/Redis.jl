@@ -10,6 +10,7 @@ client = redis()
 @test exists(client, "foo") == false
 @test dump(client, "foo") == nothing
 
+# set (with expiration and conditional overwrites)
 @test set(client, "foo", 4; xx=true) == false
 @test set(client, "foo", 4) == true
 @test set(client, "foo", "bananas"; nx=true) == false
@@ -30,6 +31,18 @@ sleep(0.150)
 @test sort(keys(client)) == {"foo","goo"}
 @test keys(client, "f*") == {"foo"}
 @test keys(client, "boo") == {}
+
+# incr
+@test exists(client, "moo") == false
+@test incr(client, "moo") == 1
+@test incr(client, "moo") == 2
+@test incr(client, "moo", 2) == 4
+
+# decr
+@test exists(client, "noo") == false
+@test decr(client, "noo") == -1
+@test decr(client, "noo") == -2
+@test decr(client, "noo", 2) == -4
 
 # key expiration via px (in milliseconds)
 @test set(client, "foo", 4; px=500) == true
