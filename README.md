@@ -30,3 +30,5 @@ Pure Julia implementation of a Redis client, largely based on [redis-py](https:/
     incr(client, "one")
     decr(client, "one")
     del(client, "one")
+
+    # many more to come...
