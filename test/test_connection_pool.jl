@@ -9,12 +9,12 @@ pool = ConnectionPool(max_connections=2, db=1)
 c1 = get_connection(pool)
 @test pool.created_connections == 1
 @test isempty(pool.available_connections)
-@test pool.in_use_connections == Set(c1)
+@test pool.in_use_connections == Set({c1})
 
 c2 = get_connection(pool)
 @test pool.created_connections == 2
 @test isempty(pool.available_connections)
-@test pool.in_use_connections == Set(c1,c2)
+@test pool.in_use_connections == Set({c1,c2})
 
 c3 =
 try
@@ -30,11 +30,11 @@ end
 
 @test release(pool, c1) == nothing
 @test pool.available_connections == [c1]
-@test pool.in_use_connections == Set(c2)
+@test pool.in_use_connections == Set({c2})
 
 @test release(pool, c1) == nothing
 @test pool.available_connections == [c1]
-@test pool.in_use_connections == Set(c2)
+@test pool.in_use_connections == Set({c2})
 
 @test release(pool, c2) == nothing
 @test pool.available_connections == [c1,c2]
@@ -42,5 +42,4 @@ end
 
 c2 = get_connection(pool)
 @test pool.available_connections == [c1]
-@test pool.in_use_connections == Set(c2)
-
+#@test pool.in_use_connections == Set(c2)
