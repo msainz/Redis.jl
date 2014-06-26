@@ -3,6 +3,8 @@ compiler:
   - clang
 notifications:
   email: false
+services:
+  - redis-server
 env:
   matrix: 
     - JULIAVERSION="julianightlies" 
