@@ -117,6 +117,15 @@ function execute_command(client::RedisClient, args...; options...)
     end
 end
 
+function execute_set_command(client::RedisClient, command::String, name::String, value, unpack)
+    # temporary might need to change
+    if unpack == true
+        execute_command(client, command, name, value...)
+    else
+        execute_command(client, command, name, value)
+    end
+end
+
 function parse_response(client::RedisClient, conn::Connection,
                         command_name::ASCIIString; options...)
     # Parses a response from the Redis server
@@ -259,4 +268,55 @@ function set(client::RedisClient, name::String, value; ex=nothing, px=nothing, n
     nx && push!(pieces, "NX")
     xx && push!(pieces, "XX")
     execute_command(client, "SET", pieces...)
+end
+
+function lindex()
+  # LINDEX key index
+  # Get an element from a list by its index
+end
+
+function linsert()
+  # LINSERT key BEFORE|AFTER pivot value
+  # Insert an element before or after another element in a list
+end
+
+function llen()
+  # LLEN key
+  #Get the length of a list
+end
+
+function lpop()
+  # LPOP key
+  # Remove and get the first element in a list
+end
+
+function lpush(client::RedisClient, name::String, value; unpack::Bool=false)
+  # LPUSH key value [value ...]
+  # Prepend one or multiple values to a list
+  execute_set_command(client, "LPUSH", name, value, unpack)
+end
+
+function lpushx()
+  # LPUSHX key value
+  # Prepend a value to a list, only if the list exists
+end
+
+function lrange()
+  # LRANGE key start stop
+  # Get a range of elements from a list
+end
+
+function lrem()
+  # LREM key count value
+  # Remove elements from a list
+end
+
+function lset()
+  # LSET key index value
+  # Set the value of an element in a list by its index
+end
+
+function ltrim()
+  # LTRIM key start stop
+  # Trim a list to the specified range
 end
