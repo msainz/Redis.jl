@@ -1,9 +1,9 @@
 module Redis
 
     export RedisException,
-                 AuthenticationError,
-                 ConnectionError,
-                 InvalidResponse
+           AuthenticationError,
+           ConnectionError,
+           InvalidResponse
 
     export RedisParser, SimpleParser, Connection, ConnectionPool
     export connect, disconnect, send_command, read_response
@@ -12,12 +12,15 @@ module Redis
 
     ### SERVER INFORMATION COMMANDS ###
     export bgrewriteaof, bgsave, dbsize, echo, flushall, flushdb,
-           info, ping, save, time, lindex, linsert, llen, lpop, lpush
-           lpushx, lrange, lrem, lset, ltrim
+           info, ping, save, time
 
     #### BASIC KEY COMMANDS ####
     export keys, append, exists, dump, restore, get, set, del,
                  incr, decr
+
+    #### LISTS ####
+    export lindex, linsert, llen, lpop, lpush,
+           lpushx, lrange, lrem, lset, ltrim
 
     include("exceptions.jl")
     include("connection.jl")

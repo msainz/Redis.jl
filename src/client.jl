@@ -270,13 +270,13 @@ function set(client::RedisClient, name::String, value; ex=nothing, px=nothing, n
     execute_command(client, "SET", pieces...)
 end
 
-function lindex(client::RedisClient, name::String, index:Int32)
+function lindex(client::RedisClient, name::String, index::Int64)
   # LINDEX key index
   # Get an element from a list by its index
   execute_command(client, "LINDEX", name, index)
 end
 
-function linsert(client::RedisClient, name::String, postition:String, pivot::Int32, value)
+function linsert(client::RedisClient, name::String, postition::String, pivot, value)
   # LINSERT key BEFORE|AFTER pivot value
   # Insert an element before or after another element in a list
   execute_command(client, "LINSERT", name, postition, pivot, value)
@@ -306,25 +306,25 @@ function lpushx(client::RedisClient, name::String, value)
   execute_command(client, "LPUSHX", name, value)
 end
 
-function lrange(client::RedisClient, name::String, start::Int32, stop::Int32)
+function lrange(client::RedisClient, name::String, start::Int64, stop::Int64)
   # LRANGE key start stop
   # Get a range of elements from a list
   execute_command(client, "LRANGE", name, start, stop)
 end
 
-function lrem(client::RedisClient, name::String, count::Int32, value)
+function lrem(client::RedisClient, name::String, count::Int64, value)
   # LREM key count value
   # Remove elements from a list
   execute_command(client, "LREM", name, count, value)
 end
 
-function lset(client::RedisClient, name::String, index::Int32, value)
+function lset(client::RedisClient, name::String, index::Int64, value)
   # LSET key index value
   # Set the value of an element in a list by its index
   execute_command(client, "LSET", name, index, value)
 end
 
-function ltrim(client::RedisClient, name::String, start::Int32, stop::Int32)
+function ltrim(client::RedisClient, name::String, start::Int64, stop::Int64)
   # LTRIM key start stop
   # Trim a list to the specified range
   execute_command(client, "LTRIM", name, start, stop)
