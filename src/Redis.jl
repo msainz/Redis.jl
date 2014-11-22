@@ -12,7 +12,8 @@ module Redis
 
     ### SERVER INFORMATION COMMANDS ###
     export bgrewriteaof, bgsave, dbsize, echo, flushall, flushdb,
-                 info, ping, save, time, lpush
+           info, ping, save, time, lindex, linsert, llen, lpop, lpush
+           lpushx, lrange, lrem, lset, ltrim
 
     #### BASIC KEY COMMANDS ####
     export keys, append, exists, dump, restore, get, set, del,
