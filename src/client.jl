@@ -270,6 +270,8 @@ function set(client::RedisClient, name::String, value; ex=nothing, px=nothing, n
     execute_command(client, "SET", pieces...)
 end
 
+#### LISTS ####
+
 function lindex(client::RedisClient, name::String, index::Int64)
     # LINDEX key index
     # Get an element from a list by its index
@@ -328,4 +330,96 @@ function ltrim(client::RedisClient, name::String, start::Int64, stop::Int64)
     # LTRIM key start stop
     # Trim a list to the specified range
     execute_command(client, "LTRIM", name, start, stop)
+end
+
+#### SETS ####
+
+function sadd(client::RedisClient, name::String)
+    # SADD key member [member ...]
+    # Add one or more members to a set 
+    execute_command(client, "SADD", name)
+end
+
+function smove(client::RedisClient, name::String)
+    # SMOVE source destination member
+    # Move a member from one set to another
+    execute_command(client, "SMOVE", name)
+end
+
+function scard(client::RedisClient, name::String)
+    # SCARD key
+    # Get the number of members in a set 
+    execute_command(client, "SCARD", name)
+end
+
+function spop(client::RedisClient, name::String)
+    # SPOP key
+    # Remove and return a random member from a set 
+    execute_command(client, "SPOP", name)
+end
+
+function sdiff(client::RedisClient, name::String)
+   #SDIFF key [key ...] 
+   #Subtract multiple sets 
+    execute_command(client, "SDIFF", name)
+end
+
+function srandmember(client::RedisClient, name::String)
+    # SRANDMEMBER key [count]
+    # Get one or multiple random members from a set 
+    execute_command(client, "SRANDMEMBER", name)
+end
+
+function sdiffstore(client::RedisClient, name::String)
+   # SDIFFSTORE destination key [key ...]
+   # Subtract multiple sets and store the resulting set in a key 
+    execute_command(client, "SDIFFSTORE", name)
+end
+
+function srem(client::RedisClient, name::String)
+    # SREM key member [member ...]
+    # Remove one or more members from a set 
+    execute_command(client, "SREM", name)
+end
+
+function sinter(client::RedisClient, name::String)
+    # SINTER key [key ...]
+    # Intersect multiple sets 
+    execute_command(client, "SINTER", name)
+end
+
+function sunion(client::RedisClient, name::String)
+    # SUNION key [key ...]
+    # Add multiple sets 
+    execute_command(client, "SUNION", name)
+end
+
+function sinterstore(client::RedisClient, name::String)
+    # SINTERSTORE destination key [key ...]
+    # Intersect multiple sets and store the resulting set in a key 
+    execute_command(client, "SINTERSTORE", name)
+end
+
+function sunionstore(client::RedisClient, name::String)
+    # SUNIONSTORE destination key [key ...]
+    # Add multiple sets and store the resulting set in a key 
+    execute_command(client, "SUNIONSTORE", name)
+end
+
+function sismember(client::RedisClient, name::String)
+    # SISMEMBER key member
+    # Determine if a given value is a member of a set 
+    execute_command(client, "SISMEMBER", name)
+end
+
+function sscan(client::RedisClient, name::String)
+    # SSCAN key cursor [MATCH pattern] [COUNT count]
+    # Incrementally iterate Set elements 
+    execute_command(client, "SSCAN", name)
+end
+
+function smembers(client::RedisClient, name::String)
+    # SMEMBERS key
+    # Get all the members in a set 
+    execute_command(client, "LTRIM", name)
 end
