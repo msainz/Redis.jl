@@ -35,5 +35,3 @@ client = redis()
 @test ltrim(client, "spam", 3, 5) == true
 
 @test lrange(client, "spam", 0, 10) == {"bacon", "foo", "eggs"}
-
-@test flushall(client) == true
