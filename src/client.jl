@@ -217,7 +217,8 @@ function del(client::RedisClient, names...)
     execute_command(client, "DEL", names...)
 end
 
-restore(client::RedisClient, name::String, value::Vector{Uint8}) = restore(client, name, 0, value)
+restore(client::RedisClient, name::String, value::Vector{Uint8}) =
+    restore(client, name, 0, value)
 function restore(client::RedisClient, name::String, ttl::Int, value::Vector{Uint8})
     # Create a key using the provided serialized value, previously obtained using DUMP.
     # If ``ttl`` is 0, the key is created without any expire, otherwise the specified expire
@@ -241,7 +242,8 @@ function get(client::RedisClient, name::String)
     execute_command(client, "GET", name)
 end
 
-function set(client::RedisClient, name::String, value; ex=nothing, px=nothing, nx::Bool=false, xx::Bool=false)
+function set(client::RedisClient, name::String, value;
+             ex=nothing, px=nothing, nx::Bool=false, xx::Bool=false)
     # Set the value at key ``name`` to ``value``
     # ``ex`` sets an expire flag on key ``name`` for ``ex`` seconds.
     # ``px`` sets an expire flag on key ``name`` for ``px`` milliseconds.
