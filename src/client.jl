@@ -331,11 +331,11 @@ function sadd(client::RedisClient, name::String, member...)
     execute_command(client, "SADD", name, member...)
 end
 
-function smove(client::RedisClient, name::String, source::String,
+function smove(client::RedisClient, source::String,
                destination::String, member)
     # SMOVE source destination member
     # Move a member from one set to another
-    execute_command(client, "SMOVE", name, source, destination, member)
+    execute_command(client, "SMOVE", source, destination, member)
 end
 
 function scard(client::RedisClient, name::String)
@@ -407,11 +407,20 @@ function sismember(client::RedisClient, name::String, member)
     execute_command(client, "SISMEMBER", name, member)
 end
 
-function sscan(client::RedisClient, name::String)
-    # TODO
+function sscan(client::RedisClient, name::String, cursor;
+               match=nothing, count=nothing)
     # SSCAN key cursor [MATCH pattern] [COUNT count]
     # Incrementally iterate Set elements 
-    execute_command(client, "SSCAN", name)
+    args = [name, cursor]
+    if match != nothing
+        push!(args, "MATCH")
+        push!(args, match)
+    end
+    if count != nothing
+        push!(args, "COuNT")
+        push!(args, count)
+    end
+    execute_command(client, "SSCAN", args...)
 end
 
 function smembers(client::RedisClient, name::String)

@@ -23,9 +23,30 @@ client = redis()
 @test smembers(client, "inter_eggs") == {"brian", "10"}
 
 # Result is not cast to set by default because values are returned in order
-@test Set(sunion(client, "languages", "words")) == Set({"python","no","julia","yes"})
+@test Set(sunion(client, "languages", "words")) == 
+    Set({"python","no","julia","yes"})
 @test sinter(client, "inter_eggs", "words") == {}
 @test sinter(client, "inter_eggs", "inter_eggs") == {"brian", "10"}
 
 @test srem(client, "inter_eggs", "brian") == 1
 @test smembers(client, "inter_eggs") == {"10"}
+
+@test sdiffstore(client, "diff", "eggs", "inter_eggs") == 1
+@test smembers(client, "diff") == {"brian"}
+
+@test srandmember(client, "diff", 1) == {"brian"}
+@test sdiff(client, "eggs", "diff") == {"10"}
+
+@test spop(client, "diff") == "brian"
+@test scard(client, "diff") == 0
+@test scard(client, "eggs") == 2
+
+@test smove(client, "eggs", "diff", "10") == 1
+@test scard(client, "diff") == 1
+@test scard(client, "eggs") == 1
+
+@test sadd(client, "scan_me", 0, 1, 10, 101, 1001, 4, 3, 2, 1) == 8
+@test sscan(client, "scan_me", 0) == 
+    {"0", {"0", "1", "2", "3", "4", "10", "101", "1001"}}
+@test sscan(client, "scan_me", 0, match="1*") == 
+    {"0", {"1", "10", "101", "1001"}}
