@@ -22,6 +22,11 @@ module Redis
     export lindex, linsert, llen, lpop, lpush,
            lpushx, lrange, lrem, lset, ltrim
 
+    #### SETS ####
+    export sadd, smove, scard, spop, sdiff, srandmember, sdiffstore,
+           srem, sinter, sunion, sinterstore, sunionstore, sismember,
+           sscan, smembers
+
     include("exceptions.jl")
     include("connection.jl")
     include("connection_pool.jl")

@@ -391,20 +391,20 @@ function sinterstore(client::RedisClient, name::String,
                      destination::String, key...)
     # SINTERSTORE destination key [key ...]
     # Intersect multiple sets and store the resulting set in a key 
-    execute_command(client, "SINTERSTORE", name)
+    execute_command(client, "SINTERSTORE", name, key...)
 end
 
-function sunionstore(client::RedisClient, name::String,
+function sunionstore(client::RedisClient,
                      destination::String, key...)
     # SUNIONSTORE destination key [key ...]
     # Add multiple sets and store the resulting set in a key 
-    execute_command(client, "SUNIONSTORE", name)
+    execute_command(client, "SUNIONSTORE", destination, key...)
 end
 
-function sismember(client::RedisClient, name::String, key::String, member)
+function sismember(client::RedisClient, name::String, member)
     # SISMEMBER key member
     # Determine if a given value is a member of a set 
-    execute_command(client, "SISMEMBER", name, key, member)
+    execute_command(client, "SISMEMBER", name, member)
 end
 
 function sscan(client::RedisClient, name::String)
@@ -414,8 +414,8 @@ function sscan(client::RedisClient, name::String)
     execute_command(client, "SSCAN", name)
 end
 
-function smembers(client::RedisClient, name::String, key::String)
+function smembers(client::RedisClient, name::String)
     # SMEMBERS key
     # Get all the members in a set 
-    execute_command(client, "SMEMBERS", name, key)
+    execute_command(client, "SMEMBERS", name)
 end
