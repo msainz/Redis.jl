@@ -430,3 +430,90 @@ function smembers(client::RedisClient, name::String)
     # Get all the members in a set 
     execute_command(client, "SMEMBERS", name)
 end
+
+#### HASHES ####
+
+function hdel(client::RedisClient, name::String)
+     # HDEL key field [field ...]
+     # Delete one or more hash fields 
+
+end
+
+function hexists(client::RedisClient, name::String)
+    # HEXISTS key field 
+    # Determine if a hash field exists 
+
+end
+
+function hget(client::RedisClient, name::String)
+    # HGET key field 
+    # Get the value of a hash field 
+
+end
+
+function hgetall(client::RedisClient, name::String)
+    # HGETALL key 
+    # Get all the fields and values in a hash 
+
+end
+
+function hincrby(client::RedisClient, name::String)
+    # HINCRBY key field increment 
+    # Increment the integer value of a hash field by the given number 
+
+end
+
+function hincrbyfloat(client::RedisClient, name::String)
+    # HINCRBYFLOAT key field increment
+    # Increment the float value of a hash field by the given amount 
+
+end
+
+function hkeys(client::RedisClient, name::String)
+    # HKEYS key
+    # Get all the fields in a hash 
+
+end
+
+function hlen(client::RedisClient, name::String)
+    # HLEN key 
+    # Get the number of fields in a hash 
+
+end
+
+function hmget(client::RedisClient, name::String)
+    # HMGET key field [field ...] 
+    # Get the values of all the given hash fields 
+
+end
+
+function hmset(client::RedisClient, name::String)
+    # HMSET key field value [field value ...]
+    # Set multiple hash fields to multiple values 
+
+end
+
+function hset(client::RedisClient, name::String)
+    # HSET key field value
+    # Set the string value of a hash field 
+
+end
+
+function hsetnx(client::RedisClient, name::String)
+    # HSETNX key field value
+    # Set the value of a hash field, only if the field does not exist 
+
+end
+
+function hvals(client::RedisClient, name::String)
+    # HVALS key 
+    # Get all the values in a hash 
+
+end
+
+function hscan(client::RedisClient, name::String)
+    # HSCAN key cursor [MATCH pattern] [COUNT count]
+    # Incrementally iterate hash fields and associated values 
+
+end
+
