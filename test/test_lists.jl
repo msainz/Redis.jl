@@ -31,7 +31,7 @@ client = redis()
 @test lset(client, "spam", 0, "foo") == 1
 @test lrange(client, "spam", 0, 4) == {"foo", "eggs"}
 
-@test lpush(client, "spam", ["bacon", "spam", "spam", "spam"], unpack=true) == 6
+@test lpush(client, "spam", "bacon", "spam", "spam", "spam") == 6
 @test ltrim(client, "spam", 3, 5) == true
 
 @test lrange(client, "spam", 0, 10) == {"bacon", "foo", "eggs"}

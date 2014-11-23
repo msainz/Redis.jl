@@ -117,16 +117,6 @@ function execute_command(client::RedisClient, args...; options...)
     end
 end
 
-function execute_unpack_command(client::RedisClient, command::String, name::String, value, unpack)
-    # temporary might need to change
-    # TODO make this generic
-    if unpack == true
-        execute_command(client, command, name, value...)
-    else
-        execute_command(client, command, name, value)
-    end
-end
-
 function parse_response(client::RedisClient, conn::Connection,
                         command_name::ASCIIString; options...)
     # Parses a response from the Redis server
@@ -297,10 +287,10 @@ function lpop(client::RedisClient, name::String)
     execute_command(client, "LPOP", name)
 end
 
-function lpush(client::RedisClient, name::String, value; unpack::Bool=false)
+function lpush(client::RedisClient, name::String, value...)
     # LPUSH key value [value ...]
     # Prepend one or multiple values to a list
-    execute_unpack_command(client, "LPUSH", name, value, unpack)
+    execute_command(client, "LPUSH", name, value...)
 end
 
 function lpushx(client::RedisClient, name::String, value)
@@ -335,14 +325,14 @@ end
 
 #### SETS ####
 
-function sadd(client::RedisClient, name::String, member; unpack::Bool=false)
+function sadd(client::RedisClient, name::String, member...)
     # SADD key member [member ...]
     # Add one or more members to a set 
-    execute_unpack_command(client, "SADD", name, member, unpack)
+    execute_command(client, "SADD", name, member...)
 end
 
-function smove(client::RedisClient, name::String. source::String,
-               destination::String. member)
+function smove(client::RedisClient, name::String, source::String,
+               destination::String, member)
     # SMOVE source destination member
     # Move a member from one set to another
     execute_command(client, "SMOVE", name, source, destination, member)
@@ -360,58 +350,58 @@ function spop(client::RedisClient, name::String)
     execute_command(client, "SPOP", name)
 end
 
-function sdiff(client::RedisClient, name::String, key::String; unpack::Bool=false)
+function sdiff(client::RedisClient, name::String, key...)
     # SDIFF key [key ...] 
     # Subtract multiple sets 
-    execute_unpack_command(client, "SDIFF", name, key, unpack)
+    execute_command(client, "SDIFF", name, key...)
 end
 
-function srandmember(client::RedisClient, name::String, count:Int64)
+function srandmember(client::RedisClient, name::String, count::Int64)
     # SRANDMEMBER key [count]
     # Get one or multiple random members from a set 
     execute_command(client, "SRANDMEMBER", name, count)
 end
 
-function sdiffstore(client::RedisClient, name::String)
-    # TODO
+function sdiffstore(client::RedisClient, name::String,
+                    destination::String, key...)
     # SDIFFSTORE destination key [key ...]
     # Subtract multiple sets and store the resulting set in a key 
-    execute_command(client, "SDIFFSTORE", name)
+    execute_command(client, "SDIFFSTORE", name, destination, key...)
 end
 
-function srem(client::RedisClient, name::String, member; unpack::Bool=false)
+function srem(client::RedisClient, name::String, member...)
     # SREM key member [member ...]
     # Remove one or more members from a set 
-    execute_unpack_command(client, "SREM", name, member, unpack)
+    execute_command(client, "SREM", name, member...)
 end
 
-function sinter(client::RedisClient, name::String, key::String, unpack::Bool=false)
+function sinter(client::RedisClient, name::String, key...)
     # SINTER key [key ...]
     # Intersect multiple sets 
-    execute_unpack_command(client, "SINTER", name, key, unpack)
+    execute_command(client, "SINTER", name, key...)
 end
 
-function sunion(client::RedisClient, name::String, key::String, unpack::Bool=false)
+function sunion(client::RedisClient, name::String, key...)
     # SUNION key [key ...]
     # Add multiple sets 
-    execute_command(client, "SUNION", name, key, unpack)
+    execute_command(client, "SUNION", name, key...)
 end
 
-function sinterstore(client::RedisClient, name::String)
-    # TODO 
+function sinterstore(client::RedisClient, name::String,
+                     destination::String, key...)
     # SINTERSTORE destination key [key ...]
     # Intersect multiple sets and store the resulting set in a key 
     execute_command(client, "SINTERSTORE", name)
 end
 
-function sunionstore(client::RedisClient, name::String)
-    # TODO
+function sunionstore(client::RedisClient, name::String,
+                     destination::String, key...)
     # SUNIONSTORE destination key [key ...]
     # Add multiple sets and store the resulting set in a key 
     execute_command(client, "SUNIONSTORE", name)
 end
 
-function sismember(client::RedisClient, name::String, key:String, member)
+function sismember(client::RedisClient, name::String, key::String, member)
     # SISMEMBER key member
     # Determine if a given value is a member of a set 
     execute_command(client, "SISMEMBER", name, key, member)
@@ -424,7 +414,7 @@ function sscan(client::RedisClient, name::String)
     execute_command(client, "SSCAN", name)
 end
 
-function smembers(client::RedisClient, name::String. key::String)
+function smembers(client::RedisClient, name::String, key::String)
     # SMEMBERS key
     # Get all the members in a set 
     execute_command(client, "SMEMBERS", name, key)
