@@ -40,7 +40,7 @@ end
 
 const RESPONSE_CALLBACKS = merge(
     string_keys_to_dict(
-        "AUTH EXISTS EXPIRE EXPIREAT HEXISTS HMSET MOVE MSETNX PERSIST " *
+        "AUTH EXISTS EXPIRE EXPIREAT HEXISTS MOVE MSETNX PERSIST " *
         "PSETEX RENAMENX SISMEMBER SMOVE SETEX SETNX",
         bool
     ),
@@ -48,11 +48,11 @@ const RESPONSE_CALLBACKS = merge(
         "BITCOUNT DECRBY DEL GETBIT HDEL HLEN INCRBY LINSERT LLEN LPUSHX " *
         "RPUSHX SADD SCARD SDIFFSTORE SETBIT SETRANGE SINTERSTORE SREM " *
         "STRLEN SUNIONSTORE ZADD ZCARD ZREM ZREMRANGEBYRANK " *
-        "ZREMRANGEBYSCORE",
+        "ZREMRANGEBYSCORE HLEN",
         int
     ),
     string_keys_to_dict(
-        "FLUSHALL FLUSHDB LSET LTRIM MSET RENAME " *
+        "FLUSHALL FLUSHDB LSET LTRIM MSET RENAME HMSET " *
         "SAVE SELECT SHUTDOWN SLAVEOF WATCH UNWATCH RESTORE",
         (r) -> ismatch(r"OK", r)
     ),
@@ -63,7 +63,8 @@ const RESPONSE_CALLBACKS = merge(
         "PING" => (r) -> ismatch(r"PONG", r),
         "SET" => (r) -> (nothing != r) && ismatch(r"OK", r),
         "DUMP" => (r) -> (nothing == r) ? nothing : convert(Vector{Uint8}, r),
-        "TIME" => (r) -> ( int(r[1]), int(r[2]) )
+        "TIME" => (r) -> (int(r[1]), int(r[2])),
+        "HINCRBYFLOAT" => float
     }
 )
 
@@ -125,6 +126,18 @@ function parse_response(client::RedisClient, conn::Connection,
         return client.response_callbacks[command_name](response, options...)
     end
     response
+end
+
+function _flattern_dict(values::Dict)
+    # Might be a builtin function for this?
+    args = convert(Array{Any,1}, [])
+    count = 1
+    for a=keys(values)
+       insert!(args, count, a)
+       insert!(args, count + 1, values[a])
+       count += 2
+    end
+    return args
 end
 
 #### SERVER INFORMATION COMMANDS ####
@@ -433,87 +446,110 @@ end
 
 #### HASHES ####
 
-function hdel(client::RedisClient, name::String)
+function hdel(client::RedisClient, name::String, field...)
      # HDEL key field [field ...]
      # Delete one or more hash fields 
-
+     execute_command(client, "HDEL", name, field...)
 end
 
-function hexists(client::RedisClient, name::String)
+function hexists(client::RedisClient, name::String, field)
     # HEXISTS key field 
     # Determine if a hash field exists 
-
+    execute_command(client, "HEXISTS", name, field)
 end
 
-function hget(client::RedisClient, name::String)
+function hget(client::RedisClient, name::String, field)
     # HGET key field 
     # Get the value of a hash field 
-
+    execute_command(client, "HGET", name, field)
 end
 
-function hgetall(client::RedisClient, name::String)
+function hgetall(client::RedisClient, name::String; to_dict::Bool=true)
     # HGETALL key 
     # Get all the fields and values in a hash 
-
+    result = execute_command(client, "HGETALL", name)
+    if to_dict
+        return [result[i] => result[i + 1] for i = 1:2:length(result)]
+    else
+        return result
+    end
 end
 
-function hincrby(client::RedisClient, name::String)
+function hincrby(client::RedisClient, name::String, field, increment::Int64)
     # HINCRBY key field increment 
     # Increment the integer value of a hash field by the given number 
-
+    execute_command(client, "HINCRBY", name, field, increment)
 end
 
-function hincrbyfloat(client::RedisClient, name::String)
+function hincrbyfloat(client::RedisClient, name::String, field, increment::Float64)
     # HINCRBYFLOAT key field increment
     # Increment the float value of a hash field by the given amount 
-
+    execute_command(client, "HINCRBYFLOAT", name, field, increment)
 end
 
 function hkeys(client::RedisClient, name::String)
     # HKEYS key
     # Get all the fields in a hash 
-
+    execute_command(client, "HKEYS", name)
 end
 
 function hlen(client::RedisClient, name::String)
     # HLEN key 
     # Get the number of fields in a hash 
-
+    execute_command(client, "HLEN", name)
 end
 
-function hmget(client::RedisClient, name::String)
+function hmget(client::RedisClient, name::String, fields...)
     # HMGET key field [field ...] 
     # Get the values of all the given hash fields 
-
+    execute_command(client, "HMGET", name, fields...)
 end
 
-function hmset(client::RedisClient, name::String)
+function hmset(client::RedisClient, name::String, values::Dict)
     # HMSET key field value [field value ...]
     # Set multiple hash fields to multiple values 
-
+    args = _flattern_dict(values)
+    execute_command(client, "HMSET", name, args...)
 end
 
-function hset(client::RedisClient, name::String)
+function hset(client::RedisClient, name::String, field, value)
     # HSET key field value
     # Set the string value of a hash field 
-
+    execute_command(client, "HSET", name, field, value)
 end
 
-function hsetnx(client::RedisClient, name::String)
+function hsetnx(client::RedisClient, name::String, field, value)
     # HSETNX key field value
     # Set the value of a hash field, only if the field does not exist 
-
+    execute_command(client, "HSETNX", name, field, value)
 end
 
 function hvals(client::RedisClient, name::String)
     # HVALS key 
     # Get all the values in a hash 
-
+    execute_command(client, "HVALS", name)
 end
 
-function hscan(client::RedisClient, name::String)
+function hscan(client::RedisClient, name::String, cursor;
+               match=nothing, count=nothing, to_dict::Bool=true)
     # HSCAN key cursor [MATCH pattern] [COUNT count]
     # Incrementally iterate hash fields and associated values 
-
+    args = [name, cursor]
+    if match != nothing
+        push!(args, "MATCH")
+        push!(args, match)
+    end
+    if count != nothing
+        push!(args, "COuNT")
+        push!(args, count)
+    end
+    result = execute_command(client, "HSCAN", args...)
+    if to_dict
+        values = result[2]
+        values = [values[i] => values[i + 1] for i = 1:2:length(values)]
+        return {result[1], values}
+    else
+        return result
+    end
 end
 

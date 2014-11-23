@@ -27,6 +27,10 @@ module Redis
            srem, sinter, sunion, sinterstore, sunionstore, sismember,
            sscan, smembers
 
+    #### HASHES ####
+    export hdel, hexists, hget, hgetall, hincrby, hincrbyfloat, hkeys,
+           hlen, hmget, hmset, hset, hsetnx, hvals, hscan
+
     include("exceptions.jl")
     include("connection.jl")
     include("connection_pool.jl")
