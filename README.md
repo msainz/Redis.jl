@@ -33,4 +33,4 @@ Pure Julia implementation of a [Redis](http://redis.io) client, largely based on
     # many more to come...
 
 `[lists, sets, hashes]` implemented 
-at the moment for this 3 the docs are the tests
+at the moment for this 3 the docs are the tests, will update later on

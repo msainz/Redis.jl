@@ -1,3 +1,6 @@
 @show include("test_connection.jl")
 @show include("test_connection_pool.jl")
 @show include("test_client.jl")
+@show include("test_lists.jl")
+@show include("test_hashes.jl")
+@show include("test_sets.jl")
