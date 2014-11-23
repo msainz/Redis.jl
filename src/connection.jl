@@ -138,7 +138,7 @@ function pack_command(args...)
         write(o, STR_DOLLAR)
         write(o, string(length(enc_val)) )
         write(o, STR_CRLF)
-        write(o, enc_val )
+        write(o, enc_val)
         write(o, STR_CRLF)
     end
     o.data
@@ -188,7 +188,7 @@ function read_response(parser::RedisParser)
         # If the requested value does not exist the bulk reply will use the special
         # value -1 as data length. This is called a NULL Bulk Reply
         len == -1 && return nothing
-        return UTF8String( read(parser, len) )
+        return UTF8String(read(parser, len))
     elseif byte == '*'
         # Multi Bulk reply:
         # used to return an array of other replies. Every element of a Multi Bulk
@@ -196,7 +196,7 @@ function read_response(parser::RedisParser)
         len = int(response)
         # Null Multi Bulk Reply exists
         len == -1 && return nothing
-        return { read_response(parser) for i in 1:len }
+        return {read_response(parser) for i in 1:len}
     end
 end
 

@@ -19,4 +19,4 @@ client = redis()
 @test linsert(client, "spam", "BEFORE", "eggs", "second") == 3
 @test linsert(client, "spam", "BEFORE", "eggs", 3) == 4
 
-@test lrange(client, "spam", 0, 4) == {"bacon", "second", 3, "eggs"}
+@test lrange(client, "spam", 0, 4) == {"bacon", "second", "3", "eggs"}
