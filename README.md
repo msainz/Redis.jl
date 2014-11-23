@@ -31,3 +31,6 @@ Pure Julia implementation of a [Redis](http://redis.io) client, largely based on
     del(client, "one")
 
     # many more to come...
+
+`[lists, sets, hashes]` implemented 
+at the moment for this 3 the docs are the tests
