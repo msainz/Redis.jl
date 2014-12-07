@@ -5,7 +5,7 @@ abstract RedisError <: Exception
 
 
 type AuthenticationError <: RedisError
-  message::ASCIIString
+    message::ASCIIString
 end
 
 
@@ -14,7 +14,7 @@ end
 
 
 type ConnectionError <: RedisError # <: ServerError
-  message::ASCIIString
+    message::ASCIIString
 end
 
 
@@ -23,7 +23,7 @@ end
 
 
 type InvalidResponse <: RedisError # <: ServerError
-  message::ASCIIString
+    message::ASCIIString
 end
 
 
