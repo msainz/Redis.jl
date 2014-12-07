@@ -36,19 +36,19 @@ client = redis()
 @test hlen(client, "foo") == 2
 @test hlen(client, "spam") == 1
 
-@test hmset(client, "set_this_things",
+@test hmset(client, "set_these_things",
     {1 => 2, "a" => "b", "y" => "z", "10" => "100"}) == true
-@test hgetall(client, "set_this_things") ==
+@test hgetall(client, "set_these_things") ==
     {"1" => "2", "a" => "b", "y" => "z", "10" => "100"}
 
-@test hmget(client, "set_this_things", ["1", "a", "10"]...) == {"2", "b", "100"}
+@test hmget(client, "set_these_things", ["1", "a", "10"]...) == {"2", "b", "100"}
 
-@test hsetnx(client, "set_this_things", "778899", 0) == 1
-@test hsetnx(client, "set_this_things", "778899", 5) == 0
+@test hsetnx(client, "set_these_things", "778899", 0) == 1
+@test hsetnx(client, "set_these_things", "778899", 5) == 0
 
-@test hget(client, "set_this_things", "778899") == "0"
+@test hget(client, "set_these_things", "778899") == "0"
 
-@test hscan(client, "set_this_things", 0) == 
+@test hscan(client, "set_these_things", 0) == 
     {"0", {"1"=> "2", "778899"=> "0", "10"=> "100", "a"=> "b", "y"=> "z"}}
 
 @test hmset(client, "scan_me",

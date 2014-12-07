@@ -128,7 +128,7 @@ function parse_response(client::RedisClient, conn::Connection,
     response
 end
 
-function _flattern_dict(values::Dict)
+function _flatten_dict(values::Dict)
     # Might be a builtin function for this?
     args = convert(Array{Any,1}, [])
     count = 1
@@ -137,7 +137,7 @@ function _flattern_dict(values::Dict)
        insert!(args, count + 1, values[a])
        count += 2
     end
-    return args
+    args
 end
 
 #### SERVER INFORMATION COMMANDS ####
@@ -432,7 +432,7 @@ function sscan(client::RedisClient, name::String, cursor;
         push!(args, match)
     end
     if count != nothing
-        push!(args, "COuNT")
+        push!(args, "COUNT")
         push!(args, count)
     end
     execute_command(client, "SSCAN", args...)
@@ -508,7 +508,7 @@ end
 function hmset(client::RedisClient, name::String, values::Dict)
     # HMSET key field value [field value ...]
     # Set multiple hash fields to multiple values 
-    args = _flattern_dict(values)
+    args = _flatten_dict(values)
     execute_command(client, "HMSET", name, args...)
 end
 
@@ -540,7 +540,7 @@ function hscan(client::RedisClient, name::String, cursor;
         push!(args, match)
     end
     if count != nothing
-        push!(args, "COuNT")
+        push!(args, "COUNT")
         push!(args, count)
     end
     result = execute_command(client, "HSCAN", args...)
